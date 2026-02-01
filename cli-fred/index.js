@@ -20,41 +20,74 @@ async function main() {
     console.log(chalk.cyan('--------------------------------------------'));
 
     while (true) {
-        const { action } = await inquirer.prompt([
+        const { category } = await inquirer.prompt([
             {
                 type: 'list',
-                name: 'action',
-                message: 'O que deseja fazer?',
+                name: 'category',
+                message: 'Menu Principal:',
                 choices: [
-                    { name: '📊 Ver Status dos Bots', value: 'status' },
-                    { name: '🆕 Criar Novo Bot', value: 'create' },
-                    { name: '🔒 Alterar Privacidade', value: 'privacy' },
-                    { name: '🔗 Visualizar QR Code', value: 'qr' },
-                    { name: '✉️  Enviar Mensagem Manual', value: 'send' },
+                    { name: '📊 Monitoramento Geral', value: 'monitoring' },
+                    { name: '🤖 Gestão de Bots', value: 'management' },
+                    { name: '✉️  Ações Manuais', value: 'actions' },
                     { name: '❌ Sair', value: 'exit' }
                 ]
             }
         ]);
 
-        if (action === 'exit') break;
+        if (category === 'exit') break;
 
-        try {
-            if (action === 'status') {
-                await showStatus();
-            } else if (action === 'create') {
-                await createBot();
-            } else if (action === 'privacy') {
-                await togglePrivacy();
-            } else if (action === 'qr') {
-                await viewQrCode();
-            } else if (action === 'send') {
-                await sendMessage();
-            }
-        } catch (err) {
-            console.error(chalk.red('\n❌ Erro de conexão com a API:'), err.message);
+        if (category === 'monitoring') {
+            await showStatus();
+            continue;
         }
 
-        console.log(chalk.cyan('\n--------------------------------------------'));
+        // Submenus
+        let backToMain = false;
+        while (!backToMain) {
+            let subChoices = [];
+            let subMessage = '';
+
+            if (category === 'management') {
+                subMessage = '🤖 Gestão de Bots:';
+                subChoices = [
+                    { name: '🆕 Criar Novo Bot', value: 'create' },
+                    { name: '🔒 Alterar Privacidade', value: 'privacy' },
+                    { name: '🔗 Visualizar QR Code', value: 'qr' },
+                    { name: '⬅️  Voltar', value: 'back' }
+                ];
+            } else if (category === 'actions') {
+                subMessage = '✉️  Ações Manuais:';
+                subChoices = [
+                    { name: '✉️  Enviar Mensagem', value: 'send' },
+                    { name: '⬅️  Voltar', value: 'back' }
+                ];
+            }
+
+            const { action } = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'action',
+                    message: subMessage,
+                    choices: subChoices
+                }
+            ]);
+
+            if (action === 'back') {
+                backToMain = true;
+                continue;
+            }
+
+            try {
+                if (action === 'create') await createBot();
+                else if (action === 'privacy') await togglePrivacy();
+                else if (action === 'qr') await viewQrCode();
+                else if (action === 'send') await sendMessage();
+            } catch (err) {
+                console.error(chalk.red('\n❌ Erro:'), err.message);
+            }
+
+            console.log(chalk.cyan('\n--------------------------------------------'));
+        }
     }
 }
 
