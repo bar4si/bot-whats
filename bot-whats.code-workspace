@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "src"
+		},
+		{
+			"path": "docs"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"src": true,
+			"docs": true,
+			"node_modules": true
+		},
+		"workbench.editorAssociations": {
+			"*.md": "vscode.markdown.preview.editor"
+		},
+		"markdown.preview.doubleClickToSwitchToEditor": true
+	}
+}
