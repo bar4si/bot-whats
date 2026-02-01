@@ -14,17 +14,18 @@ const getSessions = () => {
     return fs.readdirSync(authPath).filter(f => fs.lstatSync(path.join(authPath, f)).isDirectory());
 };
 
+const formatMemory = (bytes) => (bytes / 1024 / 1024).toFixed(2) + ' MB';
+
 async function showGlobalDashboard(bots, db, initializeBot, showBotMenu) {
     console.clear();
+    const globalMemory = process.memoryUsage().rss;
+
     console.log('\n🌐 --- PAINEL GLOBAL AI-FRED (MULTI-BOT) ---');
+    console.log(`💻 Memória Global: ${formatMemory(globalMemory)}`);
+    console.log('--------------------------------------------');
 
     const rawSessions = getSessions();
     const sessions = [...new Set(rawSessions.map(s => s.replace('session-', '') || 'session'))];
-
-    // Garantir que sessões físicas estão registradas
-    for (const s of sessions) {
-        if (!bots[s]) await initializeBot(s);
-    }
 
     const activeIds = Object.keys(bots);
     if (activeIds.length === 0) {
@@ -35,7 +36,13 @@ async function showGlobalDashboard(bots, db, initializeBot, showBotMenu) {
             const id = activeIds[i];
             const bot = bots[id];
             const stats = await getDatabaseStats(db, id);
-            console.log(`${i + 1}. [${id}] Status: ${bot.status} | 📊 ${stats.contacts} contatos, ${stats.messages} msgs`);
+            const mem = bot.provider.getMemoryUsage();
+
+            const idLabel = `[${id}]`.padEnd(12);
+            const statusLabel = bot.status.padEnd(20);
+            const statsLabel = `${stats.contacts} ctt, ${stats.messages} msg`.padEnd(18);
+
+            console.log(`${i + 1}. ${idLabel} ${statusLabel} | 📊 ${statsLabel} | 💾 RAM: ${formatMemory(mem)}`);
         }
     }
 

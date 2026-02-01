@@ -40,6 +40,8 @@ async function start() {
         console.log(`📦 Carregando ${sessions.length} sessões...`);
         for (const s of sessions) {
             await initializeBot(s, db, SelectedProvider);
+            // Delay de 1.5s para evitar que múltiplos Puppeteers tentem travar arquivos ao mesmo tempo
+            await new Promise(r => setTimeout(r, 1500));
         }
     }
 

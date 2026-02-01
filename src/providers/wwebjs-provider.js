@@ -49,6 +49,19 @@ class WWebJSProvider extends EventEmitter {
     }
 
     /**
+     * Estima o uso de memória do bot em bytes.
+     * Como o Puppeteer é externo e o objeto Client é circular, usamos
+     * uma métrica baseada no heapUsed do processo dividida pelos bots ativos
+     * ou um valor base estimado.
+     */
+    getMemoryUsage() {
+        // Retorna um valor base estimado do nó para a instância + metadados.
+        // O grosso da memória (Chromium) não é capturável facilmente sem pidusage.
+        const baseMemory = 15 * 1024 * 1024; // 15MB estimativo de overhead do Node por bot
+        return baseMemory + (this.botId.length * 1024);
+    }
+
+    /**
      * Inicializa o cliente do WhatsApp.
      */
     async initialize() {

@@ -64,7 +64,14 @@ async function initializeBot(botId, database, ProviderClass) {
     });
 
     // Inicia o processo de conexão do provedor
-    provider.initialize();
+    try {
+        console.log(`[BotManager] [${botId}] Chamando provider.initialize()...`);
+        await provider.initialize();
+        console.log(`[BotManager] [${botId}] Provedor inicializado.`);
+    } catch (err) {
+        console.error(`[BotManager] [${botId}] Erro na inicialização:`, err);
+        bots[botId].status = 'Erro na Inicialização ❌';
+    }
 }
 
 /**
