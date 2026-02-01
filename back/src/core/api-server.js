@@ -17,6 +17,21 @@ function startApiServer(bots, db, initFn) {
     app.use(cors());
     app.use(express.json());
 
+    // Middleware de Autenticação Simplificado
+    const authMiddleware = (req, res, next) => {
+        const apiKey = req.headers['x-api-key'];
+        const validKey = process.env.API_KEY || 'fred_secret_key_2024';
+
+        if (!apiKey || apiKey !== validKey) {
+            console.warn(`[API] Acesso negado de: ${req.ip}`);
+            return res.status(401).json({ error: 'Não autorizado. API Key inválida ou ausente.' });
+        }
+        next();
+    };
+
+    // Aplicar o middleware em todas as rotas abaixo
+    app.use(authMiddleware);
+
     // Endpoint: Listar todos os bots e seus status
     app.get('/status', async (req, res) => {
         const status = await Promise.all(Object.keys(bots).map(async (id) => {

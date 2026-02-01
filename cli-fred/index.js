@@ -1,9 +1,14 @@
+require('dotenv').config();
 const axios = require('axios');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const qrcode = require('qrcode-terminal');
 
-const API_URL = 'http://localhost:3000';
+const API_URL = process.env.API_URL || 'http://localhost:3000';
+const API_KEY = process.env.API_KEY || 'fred_secret_key_2024';
+
+// Configurar o axios para sempre enviar a chave no header
+axios.defaults.headers.common['x-api-key'] = API_KEY;
 
 /**
  * Função principal do Cliente Console.
@@ -67,10 +72,13 @@ async function showStatus() {
         let statusColor = bot.status.includes('Online') ? chalk.green : chalk.yellow;
         if (bot.status.includes('❌')) statusColor = chalk.red;
 
-        const privacyLabel = bot.adminOnly ? chalk.red('[PRIVATE]') : chalk.cyan('[PUBLIC]');
-        const audioLabel = bot.transcriptionEnabled ? chalk.magenta('[🎙️ ON]') : chalk.gray('[🎙️ OFF]');
+        const privacyLabel = bot.adminOnly ? chalk.red('[PRIVATE]') : chalk.cyan('[PUBLIC] ');
+        const audioLabel = bot.transcriptionEnabled ? chalk.magenta('[🎙️ ON] ') : chalk.gray('[🎙️ OFF]');
 
-        console.log(`${chalk.blue(`[${bot.id}]`)} ${statusColor(bot.status)} ${privacyLabel} ${audioLabel} | 📊 ${bot.contacts} ctt, ${bot.messages} msg`);
+        const botIdStr = chalk.blue(`[${bot.id}]`).padEnd(20);
+        const statusStr = statusColor(bot.status).padEnd(30);
+
+        console.log(`${botIdStr} ${statusStr} ${privacyLabel} ${audioLabel} | 📊 ${bot.contacts} ctt, ${bot.messages} msg`);
         if (bot.hasQr) {
             console.log(chalk.magenta(`   🔗 QR Code disponível em: ${API_URL}/qr/${bot.id}`));
         }
