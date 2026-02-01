@@ -28,9 +28,9 @@ async function handleMessage(msg, botId, bots, db) {
         // Silently fail DB errors during chat
     }
 
-    // 2. Command Detection
-    const isCommand = await handleCommand(msg);
-    if (isCommand) return;
+    // 2. Command & Interaction Detection (Prefixed or Keywords)
+    const isHandled = await handleCommand(msg);
+    if (isHandled) return;
 
     // 3. Audio Detection (Google Gemini Transcription)
     if (msg.type === 'ptt' || msg.type === 'audio') {
@@ -47,33 +47,21 @@ async function handleMessage(msg, botId, bots, db) {
 
                 const responseText = `🎤 *Transcrição de Áudio:*\n\n"${transcription.trim()}"`;
                 await msg.reply(responseText);
-                console.log(`[Audio] Transcrição enviada para ${chatId}`);
             }
         } catch (err) {
             console.error('[Audio] Erro no fluxo de transcrição:', err.message);
-            // Opcional: avisar ao usuário ou falhar silenciosamente
         }
         return;
     }
 
-    // 4. Manual Triggers
-    const isTriggerFred = msg.body.toLowerCase() === 'fred';
-
-    // Ignore the rest if it's our own message and not a command
-    if (!isTriggerFred && msg.fromMe) return;
-
-    // 5. Admin Restriction (Privacy Mode)
+    // 4. Admin Restriction (Privacy Mode)
+    // O MessageHandler ainda cuida das restrições de privacidade globais
     const isAdminOnly = bots[botId].adminOnly;
     const info = provider.getInfo();
+
+    // Ignore message if adminOnly is on and user is not owner
     if (isAdminOnly && !msg.fromMe && info && msg.from !== info.wid._serialized) {
         return;
-    }
-
-    // 6. Natural Interaction
-    if (isTriggerFred) {
-        await delay(500, 1500);
-        await simulateTyping(msg, 1500);
-        msg.reply('Olá! Eu sou o AI-Fred. Como posso ajudar?\n\nDigite */ajuda*.');
     }
 }
 

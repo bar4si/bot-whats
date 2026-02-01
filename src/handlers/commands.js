@@ -1,107 +1,62 @@
-require('dotenv').config();
-const axios = require('axios');
-const { MessageMedia } = require('whatsapp-web.js');
+const fs = require('fs');
+const path = require('path');
 const { simulateTyping, delay } = require('../utils/humanizer');
 
 /**
- * Centralize all bot commands here.
+ * Maestro de Comandos (Dispatcher)
  */
-const commands = {
-    '/status': async (msg) => {
-        const uptime = process.uptime();
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        await msg.reply(`🤖 *AI-Fred Status*\n\n✅ Sistema: Online\n⏳ Uptime: ${hours}h ${minutes}m\n📡 Conexão: Estável`);
-    },
 
-    '/ajuda': async (msg) => {
-        const helpText = `🤖 *Comandos do AI-Fred*\n\n` +
-            `*/status* - Verifica o estado do bot.\n` +
-            `*/sticker* - Cria figurinha de uma imagem (use na legenda ou responda a uma foto).\n` +
-            `*/clima [cidade]* - Consulta o clima atual.\n` +
-            `*/resumo* - Gera um resumo das mensagens recentes.\n` +
-            `*/ajuda* - Mostra esta lista.`;
-        await msg.reply(helpText);
-    },
+const commands = {};
+const keywords = {}; // Registro para gatilhos sem prefixo '/'
+const commandsPath = path.join(__dirname, 'commands');
 
-    '/sticker': async (msg) => {
-        let media;
-        try {
-            if (msg.hasMedia) {
-                media = await msg.downloadMedia();
-            } else if (msg.hasQuotedMsg) {
-                const quotedMsg = await msg.getQuotedMessage();
-                if (quotedMsg.hasMedia) {
-                    media = await quotedMsg.downloadMedia();
-                }
+// Carregar comandos dinamicamente
+if (fs.existsSync(commandsPath)) {
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+
+    for (const file of commandFiles) {
+        const command = require(path.join(commandsPath, file));
+        if (command.name && command.execute) {
+            const cmdName = command.name.toLowerCase();
+
+            if (command.isKeyword) {
+                keywords[cmdName] = command.execute;
+            } else {
+                commands[cmdName] = command.execute;
             }
-
-            if (!media || !media.mimetype.startsWith('image/')) {
-                return msg.reply('❌ Por favor, envie uma imagem com a legenda `/sticker` ou responda a uma imagem existente.');
-            }
-
-            await msg.reply('⏳ Criando sua figurinha...');
-            await msg.reply(media, null, { sendMediaAsSticker: true });
-        } catch (error) {
-            console.error('[Sticker] Erro:', error);
-            await msg.reply('❌ Erro ao gerar figurinha.');
-        }
-    },
-
-    '/clima': async (msg, args) => {
-        if (args.length === 0) return msg.reply('❌ Informe uma cidade.');
-        const city = args.join(' ');
-        try {
-            const response = await axios.get(`https://api.hgbrasil.com/weather?format=json-array&fields=only_results,temp,city_name,description,humidity,wind_speedy,date,time&city_name=${encodeURIComponent(city)}`);
-            const data = response.data.results;
-            if (!data || data.city_name === 'Cidade não encontrada') return msg.reply(`❌ Não encontrei *${city}*.`);
-
-            const weatherMsg = `🌤️ *Clima em ${data.city_name}*\n\n` +
-                `🌡️ *Temperatura:* ${data.temp}°C\n` +
-                `☁️ *Condição:* ${data.description}\n` +
-                `🕒 _Atualizado às ${data.time}_`;
-            await msg.reply(weatherMsg);
-        } catch (error) {
-            await msg.reply('❌ Erro na consulta de clima.');
-        }
-    },
-
-    '/resumo': async (msg) => {
-        try {
-            const { listMessages } = require('../core/database');
-            const { generateChatResponse } = require('../providers/gemini');
-
-            // 1. Pegar últimas mensagens do banco para este bot
-            // Nota: botId precisa vir do contexto ou ser passado para o comando.
-            // Por simplicidade aqui, vamos extrair o botId se possível ou usar o bot logado.
-            // No handleCommand atual, não temos o botId fácil. Vamos ajustar.
-
-            await msg.reply(`📝 Analisando conversas recentes para gerar o resumo...`);
-
-            // Para simplicidade técnica neste momento sem alterar a assinatura do comando:
-            const summary = await generateChatResponse("Por favor, faça um resumo amigável e conciso das últimas mensagens de uma conversa de WhatsApp.");
-            await msg.reply(`✨ *Resumo IA:*\n\n${summary}`);
-        } catch (error) {
-            await msg.reply('❌ Erro ao gerar resumo via IA.');
         }
     }
-};
+    console.log(`📦 [Dispatcher] ${Object.keys(commands).length} comandos e ${Object.keys(keywords).length} palavras-chave carregados.`);
+}
 
 /**
- * Parses and executes a command if it exists.
+ * Analisa e executa um comando ou palavra-chave.
+ * @param {object} msg 
  */
 async function handleCommand(msg) {
-    if (!msg.body.startsWith('/')) return false;
+    const body = msg.body.trim().toLowerCase();
 
-    const [cmd, ...args] = msg.body.trim().split(/\s+/);
-    const commandFn = commands[cmd.toLowerCase()];
+    // 1. Verificar Comandos com Prefixos (/)
+    if (msg.body.startsWith('/')) {
+        const [cmd, ...args] = msg.body.trim().split(/\s+/);
+        const executeFn = commands[cmd.toLowerCase()];
+        if (executeFn) {
+            await delay(500, 1500);
+            await simulateTyping(msg, 2000);
+            await executeFn(msg, args);
+            return true;
+        }
+    }
 
-    if (commandFn) {
-        await delay(500, 1500);
-        await simulateTyping(msg, 2000);
-        await commandFn(msg, args);
+    // 2. Verificar Palavras-chave (Sem prefixo)
+    const keywordFn = keywords[body];
+    if (keywordFn) {
+        // A lógica de simulação e delay pode ser interna ao comando se desejado,
+        // mas mantemos aqui para consistência global.
+        await keywordFn(msg);
         return true;
     }
+
     return false;
 }
 
