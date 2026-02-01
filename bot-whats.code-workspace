@@ -3,16 +3,17 @@
 		{
 			"path": "."
 		},
-		{
-			"path": "src"
-		},
+		
 		{
 			"path": "docs"
-		}
+		},
+		{
+			"path": "back"
+		},
 	],
 	"settings": {
 		"files.exclude": {
-			"src": true,
+			"back": true,
 			"docs": true,
 			"node_modules": true
 		},
