@@ -47,7 +47,7 @@ async function start() {
     }
 
     // 4. Iniciar Servidor de API
-    startApiServer(bots, db);
+    startApiServer(bots, db, initFn);
 
     // 5. Mostrar o Dashboard
     dashboardFn();
