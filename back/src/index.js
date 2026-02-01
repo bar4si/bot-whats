@@ -2,6 +2,7 @@ const { setupDatabase } = require('./core/database');
 const { initializeBot, getBots } = require('./core/bot-manager');
 const { showGlobalDashboard, rl } = require('./ui/dashboard');
 const { showBotMenu } = require('./ui/bot-menu');
+const { startApiServer } = require('./core/api-server');
 const path = require('path');
 const fs = require('fs');
 
@@ -45,7 +46,10 @@ async function start() {
         }
     }
 
-    // 4. Mostrar o Dashboard
+    // 4. Iniciar Servidor de API
+    startApiServer(bots, db);
+
+    // 5. Mostrar o Dashboard
     dashboardFn();
 }
 

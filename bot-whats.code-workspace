@@ -10,11 +10,15 @@
 		{
 			"path": "back"
 		},
+		{
+			"path": "cli-fred"
+		},
 	],
 	"settings": {
 		"files.exclude": {
 			"back": true,
 			"docs": true,
+			"cli-fred": true,
 			"node_modules": true
 		},
 		"workbench.editorAssociations": {
