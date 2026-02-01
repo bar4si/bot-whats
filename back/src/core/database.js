@@ -30,12 +30,12 @@ async function setupDatabase() {
         )
     `);
 
-    // Migração manual: Garantir que a coluna existe se a tabela já foi criada antes
+    // Migração: Garantir que a coluna de transcrição existe
     try {
         await db.exec('ALTER TABLE bot_settings ADD COLUMN transcription_enabled INTEGER DEFAULT 0');
-        console.log('✅ Migração: Coluna transcription_enabled adicionada.');
+        console.log('✅ [Database] Configuração de áudio habilitada no banco.');
     } catch (err) {
-        // Se a coluna já existia, o SQLite retornará erro, o que é seguro ignorar aqui
+        // Se a coluna já existia, o SQLite dará erro, o que é esperado
     }
 
     // 3. Tabela de Contatos

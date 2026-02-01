@@ -15,7 +15,7 @@ async function transcribeAudio(base64Data, mimeType) {
             throw new Error('GEMINI_API_KEY não configurada no .env');
         }
 
-        const modelName = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+        const modelName = (process.env.GEMINI_MODEL || "gemini-1.5-flash").trim();
         const model = genAI.getGenerativeModel({ model: modelName });
 
         const prompt = "Transcreva este áudio para texto. Se for uma mensagem de voz, apenas escreva o que foi dito de forma literal. Se houver ruído ou não for possível entender, avise.";
