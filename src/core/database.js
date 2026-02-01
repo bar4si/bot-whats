@@ -4,7 +4,7 @@ const path = require('path');
 
 async function setupDatabase() {
     const db = await open({
-        filename: path.join(__dirname, '../database.sqlite'),
+        filename: path.join(__dirname, '../../database.sqlite'),
         driver: sqlite3.Database
     });
 
@@ -29,46 +29,16 @@ async function setupDatabase() {
         )
     `);
 
-    // 2. Tabela de Contatos (Verificação Profunda)
-    const tableInfo = await db.all("PRAGMA table_info(contacts)");
-    const pkColumns = tableInfo.filter(c => c.pk > 0);
-
-    // Se a tabela não existe ou a PK não é composta (jid, bot_id), precisamos reconstruir
-    if (tableInfo.length === 0 || pkColumns.length < 2) {
-        console.log('🔄 Reconstruindo tabela de contatos para suportar multi-bot...');
-
-        // Backup temporário se a tabela existir
-        if (tableInfo.length > 0) {
-            await db.exec(`ALTER TABLE contacts RENAME TO contacts_old`);
-        }
-
-        await db.exec(`
-            CREATE TABLE contacts (
-                jid TEXT,
-                pushname TEXT,
-                bot_id TEXT,
-                last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (jid, bot_id)
-            )
-        `);
-
-        if (tableInfo.length > 0) {
-            try {
-                // Tenta migrar dados antigos
-                await db.exec(`INSERT OR IGNORE INTO contacts (jid, pushname, bot_id, last_seen) 
-                               SELECT jid, pushname, IFNULL(bot_id, 'session'), last_seen FROM contacts_old`);
-                await db.exec(`DROP TABLE contacts_old`);
-            } catch (e) {
-                console.log('⚠️  Não foi possível migrar dados antigos, iniciando nova tabela.');
-            }
-        }
-    }
-
-    // Migrações de colunas nas mensagens
-    const msgInfo = await db.all("PRAGMA table_info(messages)");
-    if (!msgInfo.some(c => c.name === 'bot_id')) {
-        await db.exec("ALTER TABLE messages ADD COLUMN bot_id TEXT DEFAULT 'session'");
-    }
+    // 3. Tabela de Contatos
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS contacts (
+            jid TEXT,
+            pushname TEXT,
+            bot_id TEXT,
+            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (jid, bot_id)
+        )
+    `);
 
     console.log('✅ Banco de dados SQLite inicializado.');
     return db;
@@ -101,7 +71,6 @@ async function saveContact(db, bot_id, jid, pushname) {
                 last_seen = CURRENT_TIMESTAMP
         `, [jid, pushname, bot_id, pushname]);
     } catch (err) {
-        // Se ainda der erro de conflito, logamos os detalhes para depurar
         console.error('Erro ao salvar contato:', err.message);
     }
 }

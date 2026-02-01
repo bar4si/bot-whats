@@ -4,6 +4,15 @@ O AI-Fred é um motor de automação de WhatsApp profissional e self-hosted, pro
 
 ---
 
+## 🛠️ Stack Tecnológica
+- **Runtime:** [Node.js (v18+)](https://nodejs.org/) - Ambiente de execução assíncrono de alta performance.
+- **WhatsApp Library:** [`whatsapp-web.js`](https://wwebjs.dev/) - Integração via browser-level (estável).
+- **Banco de Dados:** [SQLite 3](https://www.sqlite.org/) - Persistência leve com isolamento de sessões.
+- **IA Engine:** [Google Gemini API](https://ai.google.dev/) - NLP avançado, resumos e respostas inteligentes.
+- **Utilitários:** `wa-sticker-formatter` (Figurinhas), `axios` (Requisições API), `qrcode-terminal` (Exibição QR).
+
+---
+
 ## 🚀 Principais Funcionalidades
 
 ### 🌐 Arquitetura Multi-Bot Concorrente

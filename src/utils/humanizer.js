@@ -18,10 +18,14 @@ const delay = (min = 1000, max = 3000) => {
  * @param {number} durationMs 
  */
 const simulateTyping = async (msg, durationMs = 2000) => {
-    const chat = await msg.getChat();
-    await chat.sendStateTyping();
-    await new Promise(resolve => setTimeout(resolve, durationMs));
-    await chat.clearState();
+    try {
+        const chat = await msg.getChat();
+        await chat.sendStateTyping();
+        await new Promise(resolve => setTimeout(resolve, durationMs));
+        await chat.clearState();
+    } catch (err) {
+        console.error('[Utils] Erro ao simular digitação:', err);
+    }
 };
 
 module.exports = { delay, simulateTyping };
