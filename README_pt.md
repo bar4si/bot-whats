@@ -1,95 +1,103 @@
 # 🤖 AI-Fred: Motor de Multi-Bots Concorrentes
 
-O AI-Fred é um motor de automação de WhatsApp profissional e self-hosted, projetado para rodar **múltiplas contas simultaneamente**. Feito com `whatsapp-web.js`, Node.js e SQLite, ele oferece um Painel Global centralizado para monitorar e gerenciar todos os seus bots a partir de uma única janela de terminal.
+O AI-Fred é um motor de automação de WhatsApp de nível profissional, projetado para orquestrar **múltiplas contas simultaneamente**. Desenvolvido com uma arquitetura modular de alto padrão, ele utiliza `whatsapp-web.js`, Node.js e Google Gemini para oferecer um centro de comando centralizado para comunicações de alta eficiência.
 
 ---
 
-## 🛠️ Stack Tecnológica
-- **Runtime:** [Node.js (v18+)](https://nodejs.org/) - Ambiente de execução assíncrono de alta performance.
-- **WhatsApp Library:** [`whatsapp-web.js`](https://wwebjs.dev/) - Integração via browser-level (estável).
-- **Banco de Dados:** [SQLite 3](https://www.sqlite.org/) - Persistência leve com isolamento de sessões.
-- **IA Engine:** [Google Gemini API](https://ai.google.dev/) - NLP avançado, resumos e respostas inteligentes.
-- **Utilitários:** `wa-sticker-formatter` (Figurinhas), `axios` (Requisições API), `qrcode-terminal` (Exibição QR).
+## 📑 Índice
+1. [Visão Geral](#1-visão-geral)
+2. [Stack Tecnológica](#2-stack-tecnológica)
+3. [Arquitetura & Injeção de Dependência](#3-arquitetura--injeção-de-dependência)
+4. [Núcleo Multi-Bot Concorrente](#4-núcleo-multi-bot-concorrente)
+5. [Comandos & Exemplos de Uso](#5-comandos--exemplos-de-uso)
+6. [Instalação & Configuração](#6-instalação--configuração)
+7. [Roadmap Avançado](#7-roadmap-avançado)
 
 ---
 
-## 🚀 Principais Funcionalidades
+## 1. Visão Geral
+O AI-Fred não é apenas um bot; é um **motor**. Focado em estabilidade, isolamento de dados e integração avançada de IA. Seja gerenciando linhas de suporte ou automações pessoais, o AI-Fred oferece uma experiência de CLI premium para monitorar e interagir com cada instância em tempo real.
 
-### 🌐 Arquitetura Multi-Bot Concorrente
-Ao contrário de bots padrão, o AI-Fred inicializa todas as suas sessões de WhatsApp **em paralelo** na inicialização. Cada bot permanece ativo e responsivo em segundo plano enquanto você navega pelo painel.
-
-### 📊 Painel Global & Monitoramento
-Um centro de comando central para todas as suas instâncias:
-- **Status ao Vivo:** Monitore os bots enquanto eles alternam entre `Aguardando QR`, `Carregando` e `Online`.
-- **Estatísticas em Tempo Real:** Veja a contagem de contatos e mensagens de cada bot num relance.
-- **Atualização Dinâmica:** Pressione `ENTER` para atualizar instantaneamente o status de todos os bots concorrentes.
-
-### 🛠️ CLI Administrativo Profissional
-Gerenciamento detalhado para cada instância específica:
-1. **Indexação de Contatos:** Liste todos os contatos registrados com nomes e JIDs.
-2. **Histórico de Conversas:** Veja as mensagens recentes com diferenciação entre bot/usuário.
-3. **Status da Conexão:** Informações técnicas detalhadas sobre a sessão atual.
-4. **Troca de Contexto:** Volte para o Painel Global sem parar o bot (Opção 9).
-5. **Gestão de Sessões:** Crie novas sessões facilmente (Opção N) ou apague as antigas (Opção D) com limpeza total de dados.
-
-### 🛡️ Anti-Ban & UI Inteligente
-- **Privacidade por Bot:** Alterne entre os modos **🌐 Público** ou **🔒 Privado** (Admin Only) de forma independente para cada conta.
-- **Presença Humanizada:** Delays de resposta aleatórios e indicadores de "digitando..." simulados.
-- **Isolamento de Dados:** O banco SQLite armazena dados indexados por `bot_id`, garantindo que não haja vazamento entre contas.
+> [!TIP]
+> Utilize o Painel Global para monitorar a saúde e o tráfego de todas as suas sessões ativas com um único olhar.
 
 ---
 
-## ⚡ Comandos Disponíveis
-- `/ajuda` - Lista completa e detalhada de comandos.
-- `/status` - Saúde detalhada do sistema e da conexão.
-- `/sticker` - Conversão instantânea de imagem para figurinha (direta ou respondida).
-- `/clima [cidade]` - Relatórios meteorológicos locais.
-- `/resumo` - Resumos de chat gerados por IA (Integração Gemini).
+## 2. Stack Tecnológica
+A stack foi escolhida para máximo desempenho e baixo consumo:
+- **Runtime:** [Node.js (v18+)](https://nodejs.org/) - Execução assíncrona de alta performance.
+- **WhatsApp Library:** [`whatsapp-web.js`](https://wwebjs.dev/) - Integração via browser-level para maior estabilidade.
+- **Banco de Dados:** [SQLite 3](https://www.sqlite.org/) - Persistência de dados local e isolada por bot.
+- **IA Engine:** [Google Gemini API](https://ai.google.dev/) - Transcrição avançada e processamento de linguagem natural.
+- **Utilitários:** `wa-sticker-formatter` (Figurinhas), `axios` (REST), `qrcode-terminal` (exibição de QR no terminal).
 
 ---
 
-## ⚙️ Instalação
+## 3. Arquitetura & Injeção de Dependência
+O AI-Fred segue o padrão de **Provedor Multi-Simétrico**. Utilizando **Injeção de Dependência**, a lógica central é desacoplada da biblioteca de WhatsApp subjacente.
+
+- **Handlers Modulares:** Comandos e mensagens são separados da lógica de conexão.
+- **Interface de Provedor:** Permite alternar facilmente entre o `whatsapp-web.js` e a **API Oficial do WhatsApp (Cloud API)**.
+- **Isolamento de Dados:** Cada sessão possui seu próprio diretório e escopo de banco de dados, evitando vazamentos entre contas.
+
+---
+
+## 4. Núcleo Multi-Bot Concorrente
+Ao contrário de bots tradicionais que rodam em sequência, o AI-Fred inicializa todas as sessões em **paralelo**.
+- **Painel Global:** Centro de comando central para monitoramento multi-sessão.
+- **Recuperação Automática:** Detecta desconexões e tenta restaurar sessões sem intervenção humana.
+- **Gestor de Sessões:** Crie (`N`), Delete (`D`) ou acesse menus individuais de cada bot diretamente pela CLI.
+
+---
+
+## 5. Comandos & Exemplos de Uso
+O AI-Fred já vem equipado com utilitários poderosos nativos.
+
+| Comando | Ação | Exemplo |
+| :--- | :--- | :--- |
+| `/ajuda` | Exibe o menu de comandos | `Usuário: /ajuda` |
+| `/status` | Métricas de conexão e uptime | `Usuário: /status` |
+| `/sticker` | Conversão de Imagem para Figurinha | `Usuário: [Envia Imagem] /sticker` |
+| `/clima` | Relatório meteorológico em tempo real | `Usuário: /clima São Paulo` |
+| `/resumo` | Resumo de chat gerado por IA | `Usuário: /resumo` |
+
+### 🎙️ Transcrição de Áudio
+O AI-Fred transcreve automaticamente cada mensagem de voz recebida:
+- **Usuário:** [Mensagem de Áudio]
+- **AI-Fred:** 🎤 *Transcrição de Áudio:* "Olá, gostaria de saber o horário de funcionamento de hoje."
+
+---
+
+## 6. Instalação & Configuração
+Clone e configure em minutos:
 
 1. **Clonar e Instalar:**
    ```bash
-   git clone [url-do-repo]
+   git clone https://github.com/bar4si/ai-fred.git
    cd bot-whats
    npm install
    ```
 
-2. **Configurar Ambiente:**
-   ```bash
-   cp .env.example .env
-   # Adicione sua API Key do Google Gemini
+2. **Configuração de Ambiente:**
+   Crie um arquivo `.env` baseado no `.env.example`:
+   ```env
+   GEMINI_API_KEY=sua_chave_aqui
+   ADMIN_ONLY=false
    ```
 
-3. **Iniciar o Motor:**
+3. **Iniciar:**
    ```bash
    npm start
    ```
 
-4. **Pareamento Múltiplo:**
-   - Selecione `N` no painel para adicionar uma nova sessão.
-   - Digite um nome (ex: `Suporte`).
-   - Selecione a nova sessão para ver o QR Code e conectar seu celular.
-
 ---
 
-## 📜 Estrutura do Projeto
-- `src/index.js`: Registro multi-bot, Painel Global e núcleo da CLI.
-- `src/database.js`: Schema SQLite com isolamento de sessão e migrações automatizadas.
-- `src/commands.js`: Processamento de comandos e integrações de API.
-- `src/utils.js`: Lógica de humanização anti-ban.
-
----
-
-## 🤝 Roadmap
-- [x] Suporte Multi-Bot Concorrente
-- [x] UI de Painel Global
-- [x] Isolamento de Dados SQLite
-- [x] Ciclo de Vida de Sessão (Criar/Deletar/Voltar)
-- [ ] Transcrição de Áudio para Texto
-- [ ] Respostas Automáticas Inteligentes via IA
+## 7. Roadmap Avançado
+- [x] Arquitetura Multi-Bot Concorrente
+- [x] Injeção de Dependência (Nível de Provedor)
+- [x] Transcrição de Áudio (Gemini 1.5 Flash)
 - [ ] Geração de Imagens (`/imagine`)
+- [ ] Integração com Webhook da API Oficial
+- [ ] Análise de Sentimento para Suporte
 
-Desenvolvido com ❤️ para automação de alta eficiência.
+Desenvolvido com ❤️ para automação de alta performance.

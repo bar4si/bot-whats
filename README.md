@@ -1,95 +1,103 @@
 # 🤖 AI-Fred: Concurrent Multi-Bot Engine
 
-AI-Fred is a professional, self-hosted WhatsApp automation engine designed to run **multiple accounts simultaneously**. Built with `whatsapp-web.js`, Node.js, and SQLite, it offers a centralized Global Dashboard to monitor and manage all your bots from a single terminal window.
+AI-Fred is a professional-grade, self-hosted WhatsApp automation engine designed to orchestrate **multiple accounts simultaneously**. Engineered with a modular, senior-level architecture, it leverages `whatsapp-web.js`, Node.js, and Google Gemini to provide a centralized hub for high-efficiency communication.
 
 ---
 
-## 🛠️ Technology Stack
+## 📑 Table of Contents
+1. [Overview](#1-overview)
+2. [Technology Stack](#2-technology-stack)
+3. [Architecture & Dependency Injection](#3-architecture--dependency-injection)
+4. [Concurrent Multi-Bot Core](#4-concurrent-multi-bot-core)
+5. [Commands & Usage Examples](#5-commands--usage-examples)
+6. [Installation & Configuration](#6-installation--configuration)
+7. [Advanced Roadmap](#7-advanced-roadmap)
+
+---
+
+## 1. Overview
+AI-Fred isn't just a bot; it's an **engine**. It focuses on stability, isolation of data, and advanced AI integration. Whether you're managing support lines or personal automation, AI-Fred provides a premium CLI experience to monitor and interact with every instance in real-time.
+
+> [!TIP]
+> Use the Global Dashboard to monitor the health and throughput of all your active sessions at a single glance.
+
+---
+
+## 2. Technology Stack
+The stack is chosen for maximum performance and low footprint:
 - **Runtime:** [Node.js (v18+)](https://nodejs.org/) - High-performance asynchronous execution.
-- **WhatsApp Library:** [`whatsapp-web.js`](https://wwebjs.dev/) - Browser-level WhatsApp integration.
-- **Database:** [SQLite 3](https://www.sqlite.org/) - Lightweight persistence for sessions and data isolation.
-- **AI Engine:** [Google Gemini API](https://ai.google.dev/) - Advanced NLP, summarization, and intelligent replies.
-- **Utilities:** `wa-sticker-formatter` (Stickers), `axios` (API requests), `qrcode-terminal` (QR display).
+- **WhatsApp Library:** [`whatsapp-web.js`](https://wwebjs.dev/) - Browser-level integration for stability.
+- **Database:** [SQLite 3](https://www.sqlite.org/) - Lightweight, per-bot data persistence.
+- **AI Engine:** [Google Gemini API](https://ai.google.dev/) - Advanced transcription and NLP.
+- **Utilities:** `wa-sticker-formatter` (Stickers), `axios` (REST), `qrcode-terminal` (QR display).
 
 ---
 
-## 🚀 Key Features
+## 3. Architecture & Dependency Injection
+AI-Fred follows a **Symmetric Multi-Provider** pattern. By using **Dependency Injection**, the core logic is decoupled from the underlying WhatsApp library.
 
-### 🌐 Concurrent Multi-Bot Architecture
-Unlike standard bots, AI-Fred initializes all your WhatsApp sessions **in parallel** on startup. Every bot remains active and responsive in the background while you navigate the dashboard.
-
-### 📊 Global Dashboard & Monitoring
-A central command center for all your instances:
-- **Live Status:** Monitor bots as they transition between `Waiting for QR`, `Loading`, and `Online`.
-- **Real-time Stats:** See contact and message counts for every bot at a glance.
-- **Dynamic Refresh:** Press `ENTER` to instantly update the status of all concurrent bots.
-
-### 🛠️ Professional Administrative CLI
-Detailed management for each specific instance:
-1. **Contact Indexing:** List all registered contacts with names and JIDs.
-2. **Conversation History:** View recent messages with bot/user differentiation.
-3. **Connection Status:** In-depth technical info about the current session.
-4. **Context Switching:** Navigate back to the Global Dashboard without stopping the bot (Option 9).
-5. **Session Management:** Easily create new sessions (Option N) or delete old ones (Option D) with full data wipe.
-
-### 🛡️ Anti-Ban & Intelligent UI
-- **Per-Bot Privacy:** Toggle **Public** or **Private** (Admin Only) modes independently for each bot.
-- **Humanized Presence:** Randomized response delays and simulated "typing..." indicators.
-- **Data Isolation:** SQLite database stores data keyed by `bot_id`, ensuring no leaks between accounts.
+- **Modular Handlers:** Commands and messages are separated from the connection logic.
+- **Provider Interface:** Allows seamless toggling between `whatsapp-web.js` and the **Official WhatsApp Cloud API**.
+- **Data Isolation:** Each session has its own directory and database scope, preventing cross-account leaks.
 
 ---
 
-## ⚡ Available Commands
-- `/ajuda` - Comprehensive list of available commands.
-- `/status` - Detailed system and connection health.
-- `/sticker` - Instant image-to-sticker conversion (direct or quoted).
-- `/clima [cidade]` - Local weather reports.
-- `/resumo` - AI-generated chat summaries (Gemini Integration).
+## 4. Concurrent Multi-Bot Core
+Unlike traditional bots that run in sequence, AI-Fred initializes all sessions in **parallel**.
+- **Global Dashboard:** Central command center for multi-session monitoring.
+- **Auto-Recovery:** Detects disconnections and attempts to restore sessions without human intervention.
+- **Session Manager:** Create (`N`), Delete (`D`), or individual Bot Menus directly from the CLI.
 
 ---
 
-## ⚙️ Installation
+## 5. Commands & Usage Examples
+AI-Fred comes equipped with powerful utilities out of the box.
+
+| Command | Action | Example |
+| :--- | :--- | :--- |
+| `/ajuda` | Displays the command menu | `User: /ajuda` |
+| `/status` | Connection and uptime metrics | `User: /status` |
+| `/sticker` | Image-to-Sticker conversion | `User: [Sends Image] /sticker` |
+| `/clima` | Real-time weather reporting | `User: /clima São Paulo` |
+| `/resumo` | AI-Powered chat summarization | `User: /resumo` |
+
+### 🎙️ Audio Transcription
+AI-Fred automatically transcribes every voice message received:
+- **User:** [Audio Message]
+- **AI-Fred:** 🎤 *Audio Transcription:* "Hello, I wanted to know the opening hours for today."
+
+---
+
+## 6. Installation & Configuration
+Clone and deploy in minutes:
 
 1. **Clone & Install:**
    ```bash
-   git clone [repo-url]
+   git clone https://github.com/bar4si/ai-fred.git
    cd bot-whats
    npm install
    ```
 
-2. **Configure Environment:**
-   ```bash
-   cp .env.example .env
-   # Add your Google Gemini API Key
+2. **Environment Setup:**
+   Create a `.env` file based on `.env.example`:
+   ```env
+   GEMINI_API_KEY=your_key_here
+   ADMIN_ONLY=false
    ```
 
-3. **Launch the Engine:**
+3. **Launch:**
    ```bash
    npm start
    ```
 
-4. **Multi-Pairing:**
-   - Select `N` from the dashboard to add a new session.
-   - Enter a name (e.g., `Support`).
-   - Select the new session to see the QR Code and link your phone.
-
 ---
 
-## 📜 Project Structure
-- `src/index.js`: Multi-bot registry, Global Dashboard, and CLI core.
-- `src/database.js`: SQLite schema with session isolation and automated migrations.
-- `src/commands.js`: Command processing and API integrations.
-- `src/utils.js`: Anti-ban humanization logic.
-
----
-
-## 🤝 Roadmap
-- [x] Concurrent Multi-Bot Support
-- [x] Global Dashboard UI
-- [x] SQLite Data Isolation
-- [x] Smart Session Lifecycle (Create/Delete/Back)
-- [ ] Voice-to-Text Transcription
-- [ ] Intelligent Auto-Replies via AI
+## 7. Advanced Roadmap
+- [x] Concurrent Multi-Bot Architecture
+- [x] Dependency Injection (Provider Level)
+- [x] Audio Transcription (Gemini 1.5 Flash)
 - [ ] Image Generation (`/imagine`)
+- [ ] Official API Webhook Integration
+- [ ] Sentiment Analysis for Support Sessions
 
-Developed with ❤️ for high-efficiency automation.
+Developed with ❤️ for high-performance automation.
