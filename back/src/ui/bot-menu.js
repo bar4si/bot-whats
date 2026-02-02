@@ -1,5 +1,5 @@
-const qrcode = require('qrcode-terminal');
 const { getDatabaseStats, listUniqueUsers, listMessages, cleanupDatabase, clearAllMessages, setBotSetting } = require('../core/database');
+const { formatLocalTime } = require('../utils/date-formatter');
 
 async function showBotMenu(botId, bots, db, rl, showGlobalDashboard) {
     const bot = bots[botId];
@@ -36,7 +36,7 @@ async function showBotMenu(botId, bots, db, rl, showGlobalDashboard) {
             case '1':
                 const users = await listUniqueUsers(db, botId);
                 console.log('\n📇 CONTATOS:');
-                users.forEach(u => console.log(`- ${u.contact_name || 'Sem Nome'} (${u.from_number})`));
+                users.forEach(u => console.log(`- ${u.contact_name || 'Sem Nome'} (${u.from_number}) | Última vez: ${formatLocalTime(u.last_seen)}`));
                 break;
             case '2':
                 const msgs = await listMessages(db, botId);
@@ -46,7 +46,7 @@ async function showBotMenu(botId, bots, db, rl, showGlobalDashboard) {
                 msgs.forEach(m => {
                     const contact = m.contact_name ? `${m.contact_name} (${m.from_number})` : m.from_number;
                     const direction = m.is_from_me ? `🔹 [${profileName}] -> ${contact}` : `${contact} -> 🔹 [${profileName}]`;
-                    console.log(`[${m.timestamp}] ${direction}: ${m.body.substring(0, 50).replace(/\n/g, ' ')}`);
+                    console.log(`[${formatLocalTime(m.timestamp)}] ${direction}: ${m.body.substring(0, 50).replace(/\n/g, ' ')}`);
                 });
                 break;
             case '3':

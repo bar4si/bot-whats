@@ -61,7 +61,7 @@ async function listMessages(db, bot_id) {
             LEFT JOIN contacts c ON m.from_number = c.jid AND m.bot_id = c.bot_id
             WHERE m.bot_id = ?
             ORDER BY m.timestamp DESC 
-            LIMIT 30
+            LIMIT 50
         `, [bot_id]);
         return messages;
     } catch (err) {
@@ -86,7 +86,7 @@ async function saveContact(db, bot_id, jid, pushname) {
 
 async function listUniqueUsers(db, bot_id) {
     try {
-        const users = await db.all('SELECT jid as from_number, pushname as contact_name FROM contacts WHERE bot_id = ? ORDER BY last_seen DESC', [bot_id]);
+        const users = await db.all('SELECT jid as from_number, pushname as contact_name, last_seen FROM contacts WHERE bot_id = ? ORDER BY last_seen DESC', [bot_id]);
         return users;
     } catch (err) {
         console.error('Erro ao listar usuários únicos:', err.message);

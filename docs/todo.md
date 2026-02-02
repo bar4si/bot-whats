@@ -49,10 +49,13 @@ Este arquivo rastreia o progresso técnico do bot AI-Fred.
 ## 🎮 Ideias de Jogos (Gaming)
 1.  **❓ Trivia/Quiz:** Desafios de perguntas e respostas em grupos com ranking de pontos.
 2.  **🪓 Forca (Hangman):** O clássico jogo da forca adaptado para o chat.
-3.  **❌ Jogo da Velha (Tic-Tac-Toe):** Partidas rápidas entre usuários ou contra o bot.
+3.  **❌ Jogo da Velha (Tic-Tac-Toe):** Partidas PvP rápidas em conversas privadas com gestão automática de turnos e nomes. [Concluído]
 4.  **🎭 RPG Narrativo com IA:** O Fred atua como Mestre de RPG, criando uma história dinâmica baseada nas escolhas do usuário.
 5.  **🧩 Palavra do Dia (Estilo Termo):** Um desafio diário onde todos os usuários tentam adivinhar a mesma palavra.
 6.  **🕵️ "Quem sou eu?":** A IA assume a persona de um personagem famoso e os usuários precisam adivinhar com perguntas de sim/não.
+7.  **💖 "Nossa Sintonia":** O bot faz perguntas sobre o casal alternadamente e, ao final, revela a porcentagem de afinidade das respostas. [Ideia]
+8.  **🎲 "Verdade ou Desafio Romântico":** Versão personalizada do clássico jogo com desafios leves e engraçados para casais. [Ideia]
+9.  **💋 "Desafio 30 Dias de Carinho":** Um fluxo onde o Fred envia uma pequena missão romântica diária para o casal realizar. [Ideia]
 
 ---
 
