@@ -70,7 +70,7 @@ async function showGlobalDashboard(bots, db, initializeBot, showBotMenu) {
                 const confirm = await new Promise(res => rl.question(`⚠️  APAGAR [${targetId}]? (s/n): `, res));
                 if (confirm.toLowerCase() === 's') {
                     if (bots[targetId]) {
-                        await bots[targetId].client.destroy();
+                        await bots[targetId].provider.destroy();
                         delete bots[targetId];
                     }
                     const folders = getSessions().filter(s => s === targetId || s === `session-${targetId}`);

@@ -13,21 +13,7 @@ async function handleMessage(msg, botId, bots, db) {
     // Ignore updates that are not individual chats (group announcements, status, etc)
     if (!chatId || !chatId.endsWith('@c.us')) return;
 
-    // 1. Admin Restriction (Privacy Mode)
-    // Se o bot estiver em modo privado, ignoramos mensagens de terceiros
-    // EXCEÇÃO: Permitimos se o usuário estiver em uma partida ativa de Jogo da Velha
-    const isAdminOnly = bots[botId].adminOnly;
-    const info = provider.getInfo();
-    const isOwner = msg.fromMe || (info && msg.from === (info.wid?._serialized || info.me?._serialized));
-
-    const { getGame } = require('../core/game-engine');
-    const hasActiveGame = !!getGame(botId, chatId);
-
-    if (isAdminOnly && !isOwner && !hasActiveGame) {
-        return;
-    }
-
-    // 2. Database Persistence
+    // 1. Database Persistence
     try {
         if (!msg.fromMe) {
             const contact = await msg.getContact();
@@ -41,6 +27,20 @@ async function handleMessage(msg, botId, bots, db) {
         await pruneMessages(db, chatId, messageLimit);
     } catch (err) {
         // Silently fail DB errors during chat
+    }
+
+    // 2. Admin Restriction (Privacy Mode)
+    // Se o bot estiver em modo privado, ignoramos mensagens de terceiros
+    // EXCEÇÃO: Permitimos se o usuário estiver em uma partida ativa de Jogo da Velha
+    const isAdminOnly = bots[botId].adminOnly;
+    const info = provider.getInfo();
+    const isOwner = msg.fromMe || (info && msg.from === (info.wid?._serialized || info.me?._serialized));
+
+    const { getGame } = require('../core/game-engine');
+    const hasActiveGame = !!getGame(botId, chatId);
+
+    if (isAdminOnly && !isOwner && !hasActiveGame) {
+        return;
     }
 
     // 3. Command & Interaction Detection (Apenas Dono se estiver em modo privado)
